@@ -134,9 +134,7 @@ $title = e($thread['thread_title']);
                         <h1 class="thread-post-title"><?= e($thread['thread_title']) ?></h1>
                     </div>
 
-                    <div class="thread-post-body">
-                        <?= nl2br(e($thread['thread_description'])) ?>
-                    </div>
+                    <div class="thread-post-body"><?= nl2br(e($thread['thread_description'])) ?></div>
 
                     <div class="thread-post-footer">
                         <div class="thread-stats">
@@ -511,6 +509,9 @@ $title = e($thread['thread_title']);
             const btnWrapper = document.createElement('div');
             btnWrapper.style.marginTop = '0.5rem';
             btnWrapper.style.marginBottom = '1rem';
+            btnWrapper.style.display = 'flex';
+            btnWrapper.style.gap = '1rem';
+            btnWrapper.style.alignItems = 'center';
 
             const btn = document.createElement('button');
             btn.style.background = 'none';
@@ -528,6 +529,24 @@ $title = e($thread['thread_title']);
             btn.addEventListener('mouseover', () => btn.style.color = 'var(--gray-800, #1f2937)');
             btn.addEventListener('mouseout', () => btn.style.color = 'var(--gray-500, #6b7280)');
 
+            // Button Sembunyikan Balasan
+            const btnHide = document.createElement('button');
+            btnHide.style.background = 'none';
+            btnHide.style.border = 'none';
+            btnHide.style.color = 'var(--gray-500, #6b7280)';
+            btnHide.style.fontSize = '0.8125rem';
+            btnHide.style.fontWeight = '600';
+            btnHide.style.cursor = 'pointer';
+            btnHide.style.padding = '0';
+            btnHide.style.display = 'none'; // tersembunyi di awal
+            btnHide.style.alignItems = 'center';
+            btnHide.style.fontFamily = 'inherit';
+            btnHide.innerHTML = `<span style="margin-right:0.5rem; letter-spacing:-1px;">——</span> Sembunyikan balasan`;
+
+            // Hover effect untuk btnHide
+            btnHide.addEventListener('mouseover', () => btnHide.style.color = 'var(--gray-800, #1f2937)');
+            btnHide.addEventListener('mouseout', () => btnHide.style.color = 'var(--gray-500, #6b7280)');
+
             const updateBtnText = () => {
                 const remaining = total - currentIndex;
                 if (currentIndex === 0) {
@@ -544,19 +563,41 @@ $title = e($thread['thread_title']);
                 for (let i = currentIndex; i < Math.min(nextIndex, total); i++) {
                     items[i].style.display = '';
                 }
-                currentIndex = nextIndex;
+                currentIndex = Math.min(nextIndex, total);
                 
+                // Tampilkan tombol sembunyikan karena sudah ada balasan yang terbuka
+                btnHide.style.display = 'inline-flex';
+
                 if (currentIndex >= total) {
-                    btnWrapper.remove();
+                    btn.style.display = 'none';
+                    // Pindahkan wrapper ke paling bawah agar tombol sembunyikan ada di bawah semua balasan
+                    container.appendChild(btnWrapper);
                 } else {
                     updateBtnText();
                     // Pindahkan tombol tepat setelah balasan terakhir yang ditampilkan
-                    // (yaitu sebelum elemen balasan yang masih tersembunyi)
                     container.insertBefore(btnWrapper, items[currentIndex]);
                 }
             });
 
+            btnHide.addEventListener('click', function() {
+                // Sembunyikan semua balasan kembali
+                for (let i = 0; i < total; i++) {
+                    items[i].style.display = 'none';
+                }
+                currentIndex = 0;
+
+                // Reset status tombol
+                btn.style.display = 'inline-flex';
+                btnHide.style.display = 'none';
+
+                updateBtnText();
+
+                // Pindahkan tombol kembali ke atas sebelum balasan pertama
+                container.insertBefore(btnWrapper, items[0] || container.firstChild);
+            });
+
             btnWrapper.appendChild(btn);
+            btnWrapper.appendChild(btnHide);
             // Masukkan tombol di awal kontainer balasan (karena belum ada yang tampil)
             container.insertBefore(btnWrapper, items[0] || container.firstChild);
         }
