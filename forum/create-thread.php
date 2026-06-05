@@ -11,6 +11,12 @@ require_once __DIR__ . '/../controllers/ThreadController.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 $user = auth_user();
 
+// Blokir user yang sedang dibatasi
+if ($user && $user['status'] === 'restricted') {
+    set_flash('error', 'Hak posting kamu sedang dibatasi oleh moderator. Kamu tidak dapat membuat thread baru saat ini.');
+    redirect(BASE_URL . '/');
+}
+
 $errors = [];
 $old = [];
 

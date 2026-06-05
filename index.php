@@ -61,6 +61,16 @@ $title = '';
             </div>
         <?php endif; ?>
 
+        <!-- Banner peringatan untuk akun restricted -->
+        <?php if ($user && $user['status'] === 'restricted'): ?>
+            <div class="page-flash">
+                <div class="flash-message" style="background:#fff7ed;border:1.5px solid #f97316;color:#9a3412;display:flex;align-items:center;gap:0.625rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span><strong>Hak posting kamu sedang dibatasi</strong> oleh moderator karena kontenmu melanggar aturan komunitas. Kamu masih bisa membaca dan melihat thread, namun tidak dapat membuat thread atau komentar baru.</span>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Forum Hero Header -->
         <section id="forum-header">
             <div class="forum-header-content">
@@ -69,10 +79,17 @@ $title = '';
 
                 <div class="forum-header-actions">
                     <?php if ($user): ?>
-                        <a href="<?= BASE_URL ?>/forum/create-thread.php" class="btn btn-white" id="btn-create-thread">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Buat Thread Baru
-                        </a>
+                        <?php if ($user['status'] !== 'restricted'): ?>
+                            <a href="<?= BASE_URL ?>/forum/create-thread.php" class="btn btn-white" id="btn-create-thread">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Buat Thread Baru
+                            </a>
+                        <?php else: ?>
+                            <span class="btn btn-white" style="opacity:0.5;cursor:not-allowed;" title="Hak posting kamu sedang dibatasi">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                Posting Dibatasi
+                            </span>
+                        <?php endif; ?>
                     <?php else: ?>
                         <a href="<?= BASE_URL ?>/auth/register.php" class="btn btn-white" id="btn-join-now">
                             Bergabung Sekarang
@@ -83,6 +100,7 @@ $title = '';
                     <?php endif; ?>
                 </div>
 
+                <?php if ($user): ?>
                 <!-- Stats -->
                 <div class="forum-stats-bar">
                     <div class="forum-stat-item">
@@ -94,6 +112,7 @@ $title = '';
                         <span class="forum-stat-label">Topik</span>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </section>
 

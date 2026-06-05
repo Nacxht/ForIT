@@ -176,11 +176,11 @@ $title        = 'Panel Moderator';
                                                 </form>
 
                                                 <!-- Warn -->
-                                                <?php if ($r['thread_id']): ?>
+                                                <?php if ($r['thread_id'] && !empty($r['thread_author_id'])): ?>
                                                     <form method="POST" onsubmit="return confirm('Batasi posting user ini?')">
                                                         <input type="hidden" name="action" value="warn">
                                                         <input type="hidden" name="report_id" value="<?= e($r['report_id']) ?>">
-                                                        <input type="hidden" name="user_id" value="">
+                                                        <input type="hidden" name="user_id" value="<?= e($r['thread_author_id']) ?>">
                                                         <input type="hidden" name="csrf_token" value="<?= generate_csrf() ?>">
                                                         <button type="submit" class="table-action-btn table-action-warning">Warning</button>
                                                     </form>
