@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../db_conn.php';
 require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/../repositories/CommentRepository.php';
+require_once __DIR__ . '/../validators/ProfanityFilter.php';
 
 $commentRepo = new CommentRepository(DBH);
 
@@ -53,6 +54,11 @@ function handle_add_comment(CommentRepository $repo, array $user): array
 
     if (mb_strlen($content) > 5000) {
         return ['success' => false, 'message' => 'Komentar terlalu panjang (maks. 5000 karakter).'];
+    }
+
+    $foundBadWord = ProfanityFilter::detect($content);
+    if ($foundBadWord !== null) {
+        return ['success' => false, 'message' => 'Komentar mengandung kata kasar / tidak pantas.'];
     }
 
     if (empty($threadId)) {

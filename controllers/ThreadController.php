@@ -7,6 +7,7 @@ require_once __DIR__ . '/../db_conn.php';
 require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/../repositories/ThreadRepository.php';
 require_once __DIR__ . '/../repositories/TopicRepository.php';
+require_once __DIR__ . '/../validators/ProfanityFilter.php';
 
 $threadRepo = new ThreadRepository(DBH);
 $topicRepo  = new TopicRepository(DBH);
@@ -26,12 +27,22 @@ function handle_create_thread(ThreadRepository $threadRepo, TopicRepository $top
         $errors['thread_title'] = 'Judul thread wajib diisi.';
     } elseif (mb_strlen($title) > 100) {
         $errors['thread_title'] = 'Judul maksimal 100 karakter.';
+    } else {
+        $foundBadWord = ProfanityFilter::detect($title);
+        if ($foundBadWord !== null) {
+            $errors['thread_title'] = 'Judul thread mengandung kata kasar / tidak pantas.';
+        }
     }
 
     if (empty($description)) {
         $errors['thread_description'] = 'Konten thread wajib diisi.';
     } elseif (mb_strlen($description) < 20) {
         $errors['thread_description'] = 'Konten thread minimal 20 karakter.';
+    } else {
+        $foundBadWord = ProfanityFilter::detect($description);
+        if ($foundBadWord !== null) {
+            $errors['thread_description'] = 'Konten thread mengandung kata kasar / tidak pantas.';
+        }
     }
 
     if (!empty($errors)) {
@@ -86,8 +97,23 @@ function handle_update_thread(ThreadRepository $threadRepo, TopicRepository $top
         return ['success' => false, 'errors' => ['general' => 'Kamu tidak memiliki izin untuk mengedit thread ini.']];
     }
 
-    if (empty($title))       $errors['thread_title'] = 'Judul thread wajib diisi.';
-    if (empty($description)) $errors['thread_description'] = 'Konten thread wajib diisi.';
+    if (empty($title)) {
+        $errors['thread_title'] = 'Judul thread wajib diisi.';
+    } else {
+        $foundBadWord = ProfanityFilter::detect($title);
+        if ($foundBadWord !== null) {
+            $errors['thread_title'] = 'Judul thread mengandung kata kasar / tidak pantas.';
+        }
+    }
+
+    if (empty($description)) {
+        $errors['thread_description'] = 'Konten thread wajib diisi.';
+    } else {
+        $foundBadWord = ProfanityFilter::detect($description);
+        if ($foundBadWord !== null) {
+            $errors['thread_description'] = 'Konten thread mengandung kata kasar / tidak pantas.';
+        }
+    }
 
     if (!empty($errors)) return ['success' => false, 'errors' => $errors];
 

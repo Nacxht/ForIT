@@ -51,7 +51,8 @@ class ReportRepository
         return $this->db->query("
             SELECT r.*,
                 u.username AS reporter_username,
-                t.thread_title
+                t.thread_title,
+                t.author_id AS thread_author_id
             FROM reports r
             INNER JOIN users u ON r.reporter_id = u.user_id
             LEFT JOIN threads t ON r.thread_id = t.thread_id

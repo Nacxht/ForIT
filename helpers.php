@@ -107,7 +107,9 @@ function is_logged_in(): bool
 }
 
 /**
- * Ambil data user dari session
+ * Ambil data user dari session, sekaligus refresh status dari DB.
+ * Ini memastikan perubahan restrict/ban oleh admin langsung berpengaruh
+ * tanpa menunggu user logout–login ulang.
  */
 function auth_user(): ?array
 {
@@ -115,6 +117,21 @@ function auth_user(): ?array
         session_start();
     }
     if (!isset($_SESSION['user_id'])) return null;
+
+    // Refresh status dari DB setiap request
+    try {
+        require_once __DIR__ . '/db_conn.php';
+        $stmt = DBH->prepare("SELECT role, status FROM users WHERE user_id = :id LIMIT 1");
+        $stmt->execute([':id' => $_SESSION['user_id']]);
+        $fresh = $stmt->fetch();
+        if ($fresh) {
+            $_SESSION['role']   = $fresh['role'];
+            $_SESSION['status'] = $fresh['status'];
+        }
+    } catch (Throwable $e) {
+        // Jika DB gagal, tetap pakai data session yang ada
+    }
+
     return [
         'user_id'  => $_SESSION['user_id'],
         'username' => $_SESSION['username'],
